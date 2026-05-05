@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px;">
+
+    <h1>{{ title }}</h1>
+    <p>{{ content }}</p>
+    <hr>
+
+    <nav style="margin-top: 20px;">
+        {% if is_home %}
+            <h3>Меню сайту:</h3>
+            <ul>
+                <li><a href="{% url 'about' %}">Дізнатися про нас</a></li>
+                <li><a href="{% url 'contacts' %}">Наші контакти</a></li>
+            </ul>
+        {% else %}
+            <a href="{% url 'home' %}">⬅ Повернутися на Головну сторінку</a>
+        {% endif %}
+    </nav>
+
+</body>
+</html>
