@@ -2,9 +2,19 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Category, Dish, Rating, Subscriber
 
 
+# Допоміжна функція, яка рахує кількість товарів у кошику
+def get_cart_count(request):
+    return len(request.session.get('cart', []))
+
+
 def home_view(request):
-    context = {'title': 'Головна сторінка', 'categories': Category.objects.all(), 'dishes': Dish.objects.all(),
-               'is_home': True}
+    context = {
+        'title': 'Головна сторінка',
+        'categories': Category.objects.all(),
+        'dishes': Dish.objects.all(),
+        'is_home': True,
+        'cart_count': get_cart_count(request)  # Передаємо лічильник
+    }
     return render(request, 'delivery/page.html', context)
 
 
@@ -20,21 +30,33 @@ def about_view(request):
         Ми використовуємо лише свіжі інгредієнти та перевірені рецепти. 
         Дякуємо, що обираєте нас!
         ''',
-        'is_home': False
+        'is_home': False,
+        'cart_count': get_cart_count(request)  # Передаємо лічильник
     }
     return render(request, 'delivery/page.html', context)
 
 
 def contacts_view(request):
-    context = {'title': 'Контакти', 'categories': Category.objects.all(),
-               'content': 'Телефонуйте для замовлення: +38 (099) 123-45-67', 'is_home': False}
+    context = {
+        'title': 'Контакти',
+        'categories': Category.objects.all(),
+        'content': 'Телефонуйте для замовлення: +38 (099) 123-45-67',
+        'is_home': False,
+        'cart_count': get_cart_count(request)  # Передаємо лічильник
+    }
     return render(request, 'delivery/page.html', context)
 
 
 def category_view(request, category_id):
     category = get_object_or_404(Category, id=category_id)
-    context = {'title': f'Меню: {category.name}', 'categories': Category.objects.all(),
-               'dishes': Dish.objects.filter(category=category), 'is_category': True, 'current_category': category}
+    context = {
+        'title': f'Меню: {category.name}',
+        'categories': Category.objects.all(),
+        'dishes': Dish.objects.filter(category=category),
+        'is_category': True,
+        'current_category': category,
+        'cart_count': get_cart_count(request)  # Передаємо лічильник
+    }
     return render(request, 'delivery/page.html', context)
 
 
@@ -47,7 +69,13 @@ def dish_view(request, dish_id):
             Rating.objects.create(dish=dish, score=score)
         return redirect('dish', dish_id=dish.id)
 
-    context = {'title': dish.name, 'categories': Category.objects.all(), 'dish': dish, 'is_dish': True}
+    context = {
+        'title': dish.name,
+        'categories': Category.objects.all(),
+        'dish': dish,
+        'is_dish': True,
+        'cart_count': get_cart_count(request)  # Передаємо лічильник
+    }
     return render(request, 'delivery/page.html', context)
 
 
@@ -55,10 +83,10 @@ def add_to_cart(request, dish_id):
     cart = request.session.get('cart', [])
     cart.append(dish_id)
     request.session['cart'] = cart
-    return redirect('cart')
+    # ОНОВЛЕНО: Тепер не кидає в кошик, а залишає на тій самій сторінці!
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
 
 
-# НОВЕ ДЛЯ КОШИКА: Додаємо можливість очистити кошик
 def cart_view(request):
     if request.method == 'POST' and 'clear' in request.POST:
         request.session['cart'] = []
@@ -73,8 +101,14 @@ def cart_view(request):
             cart_items.append(dish)
             total += dish.price
 
-    context = {'title': 'Ваш Кошик', 'categories': Category.objects.all(), 'cart_items': cart_items, 'total': total,
-               'is_cart': True}
+    context = {
+        'title': 'Ваш Кошик',
+        'categories': Category.objects.all(),
+        'cart_items': cart_items,
+        'total': total,
+        'is_cart': True,
+        'cart_count': len(cart_ids)  # Передаємо лічильник
+    }
     return render(request, 'delivery/page.html', context)
 
 
