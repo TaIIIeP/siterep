@@ -4,92 +4,162 @@
     <meta charset="UTF-8">
     <title>{{ title }}</title>
 </head>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; background-color: #f9f9f9;">
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; background-color: #f4f7f6;">
 
-    <header style="background-color: #ff6600; padding: 15px 30px; color: white;">
+    <!-- ХЕДЕР -->
+    <header style="background-color: #ff6600; padding: 15px 30px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2 style="margin: 0;">🍕 Доставка від Паші</h2>
-            <nav>
-                <a href="{% url 'home' %}" style="color: white; margin-right: 15px; text-decoration: none; font-weight: bold;">Головна</a>
-                <a href="{% url 'about' %}" style="color: white; margin-right: 15px; text-decoration: none; font-weight: bold;">Про нас</a>
-                <a href="{% url 'contacts' %}" style="color: white; text-decoration: none; font-weight: bold;">Контакти</a>
+            <nav style="display: flex; align-items: center; gap: 20px;">
+                <a href="{% url 'home' %}" style="color: white; text-decoration: none; font-weight: bold; font-size: 16px;">Головна</a>
+                <a href="{% url 'about' %}" style="color: white; text-decoration: none; font-weight: bold; font-size: 16px;">Про нас</a>
+                <a href="{% url 'cart' %}" style="background: white; color: #ff6600; padding: 8px 20px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">🛒 Кошик</a>
             </nav>
         </div>
-
-        <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px;">
-            <span style="font-size: 14px;">Наше меню:</span>
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.4);">
+            <span style="font-size: 15px; font-weight: bold; margin-right: 15px;">Меню:</span>
             {% for cat in categories %}
-                <!-- КАТЕГОРІЇ ТЕПЕР КЛІКАБЕЛЬНІ -->
-                <a href="{% url 'category' cat.id %}" style="margin-left: 10px; background: white; color: #ff6600; padding: 4px 10px; border-radius: 15px; font-size: 14px; font-weight: bold; text-decoration: none;">
+                <a href="{% url 'category' cat.id %}" style="background: rgba(255,255,255,0.2); color: white; padding: 6px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; text-decoration: none; margin-right: 10px; transition: 0.3s;">
                     {{ cat.name }}
                 </a>
             {% endfor %}
         </div>
     </header>
 
-    <main style="flex: 1; padding: 30px;">
-        <h1 style="color: #333;">{{ title }}</h1>
+    <main style="flex: 1; padding: 40px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box;">
+        <h1 style="color: #2c3e50; border-bottom: 2px solid #ff6600; padding-bottom: 10px; margin-top: 0;">{{ title }}</h1>
 
-        <!-- ЯКЩО ГОЛОВНА СТОРІНКА АБО СТОРІНКА КАТЕГОРІЇ -->
+        <!-- КАТАЛОГ СТРАВ -->
         {% if is_home or is_category %}
-            <p style="color: #666; font-size: 18px;">
-                {% if is_category %}
-                    Страви в категорії: {{ current_category.name }}
-                {% else %}
-                    Ознайомтеся з нашим свіжим меню та обирайте найсмачніші страви:
-                {% endif %}
-            </p>
-
-            <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; margin-top: 30px;">
                 {% for dish in dishes %}
-                    <div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 10px; width: 220px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
-
-                        <!-- ВИВІД ФОТО -->
+                    <div style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.3s;">
                         {% if dish.image %}
-                            <img src="{{ dish.image.url }}" alt="{{ dish.name }}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px;">
+                            <img src="{{ dish.image.url }}" style="width: 100%; height: 200px; object-fit: cover;">
                         {% else %}
-                            <div style="width: 100%; height: 160px; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999;">Немає фото</div>
+                            <div style="width: 100%; height: 200px; background: #eaeaea; display: flex; align-items: center; justify-content: center; color: #888;">Немає фото</div>
                         {% endif %}
-
-                        <h3 style="margin-top: 15px; color: #333;"><a href="{% url 'dish' dish.id %}" style="text-decoration: none; color: #ff6600;">{{ dish.name }}</a></h3>
-                        <p style="color: #888; font-size: 14px; margin-bottom: 5px;">Категорія: {{ dish.category.name }}</p>
-                        <p style="color: #28a745; font-size: 22px; font-weight: bold; margin: 10px 0 0 0;">{{ dish.price }} ₴</p>
-
-                        <!-- КНОПКА КУПИТИ -->
-                        <button disabled style="margin-top: auto; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: not-allowed; opacity: 0.7;">Купити</button>
+                        <div style="padding: 20px;">
+                            <h3 style="margin: 0 0 10px 0;"><a href="{% url 'dish' dish.id %}" style="text-decoration: none; color: #2c3e50; font-size: 20px;">{{ dish.name }}</a></h3>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <span style="color: #f39c12; font-weight: bold; font-size: 16px;">⭐ {{ dish.average_rating }} / 5</span>
+                                <span style="color: #27ae60; font-size: 22px; font-weight: 900;">{{ dish.price }} ₴</span>
+                            </div>
+                            <a href="{% url 'add_to_cart' dish.id %}" style="display: block; text-align: center; padding: 12px; background: #ff6600; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">🛒 Додати в кошик</a>
+                        </div>
                     </div>
                 {% empty %}
-                    <p style="color: red;">Поки що страв немає.</p>
+                    <p style="font-size: 18px; color: #7f8c8d;">Поки що тут немає страв.</p>
                 {% endfor %}
             </div>
 
-        <!-- ЯКЩО СТОРІНКА ОДНОГО ТОВАРУ -->
+        <!-- СТОРІНКА ОДНОГО ТОВАРУ -->
         {% elif is_dish %}
-            <div style="display: flex; gap: 40px; margin-top: 20px; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                <div style="width: 400px;">
+            <div style="display: flex; gap: 50px; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-top: 20px;">
+                <div style="flex: 1; max-width: 500px;">
                     {% if dish.image %}
-                        <img src="{{ dish.image.url }}" alt="{{ dish.name }}" style="width: 100%; border-radius: 10px;">
+                        <img src="{{ dish.image.url }}" style="width: 100%; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                     {% else %}
-                        <div style="width: 100%; height: 300px; background: #eee; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #999;">Немає фото</div>
+                        <div style="width: 100%; height: 400px; background: #eaeaea; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #888;">Немає фото</div>
                     {% endif %}
                 </div>
-                <div>
-                    <h2 style="margin-top: 0; font-size: 32px;">{{ dish.name }}</h2>
-                    <p style="color: #888; font-size: 18px;">Категорія: <a href="{% url 'category' dish.category.id %}" style="color: #ff6600; text-decoration: none; font-weight: bold;">{{ dish.category.name }}</a></p>
-                    <p style="color: #28a745; font-size: 36px; font-weight: bold; margin: 20px 0;">{{ dish.price }} ₴</p>
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <h2 style="font-size: 36px; color: #2c3e50; margin-top: 0; margin-bottom: 10px;">{{ dish.name }}</h2>
+                        <p style="color: #7f8c8d; font-size: 18px; margin-bottom: 30px;">Категорія: <strong style="color: #ff6600;">{{ dish.category.name }}</strong></p>
+                        <p style="color: #27ae60; font-size: 42px; font-weight: 900; margin: 0 0 30px 0;">{{ dish.price }} ₴</p>
 
-                    <button disabled style="padding: 15px 40px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: not-allowed; opacity: 0.7;">🛒 Додати в кошик (Купити)</button>
+                        <!-- Блок Оцінювання -->
+                        <div style="background: #f8f9fa; border-left: 5px solid #f39c12; padding: 25px; border-radius: 0 10px 10px 0; margin-bottom: 30px;">
+                            <h3 style="margin-top: 0; color: #2c3e50; font-size: 24px;">Рейтинг: <span style="color: #f39c12;">⭐ {{ dish.average_rating }}</span> <span style="font-size: 16px; color: #7f8c8d;">/ 5</span></h3>
+                            <form method="POST" action="{% url 'dish' dish.id %}" style="display: flex; gap: 15px; align-items: center; margin-top: 15px;">
+                                {% csrf_token %}
+                                <label style="font-weight: bold; color: #34495e;">Ваша оцінка:</label>
+                                <select name="score" style="padding: 10px; border-radius: 5px; border: 1px solid #bdc3c7; font-size: 16px; outline: none;">
+                                    <option value="5">⭐⭐⭐⭐⭐ (5) Відмінно</option>
+                                    <option value="4">⭐⭐⭐⭐ (4) Добре</option>
+                                    <option value="3">⭐⭐⭐ (3) Нормально</option>
+                                    <option value="2">⭐⭐ (2) Так собі</option>
+                                    <option value="1">⭐ (1) Погано</option>
+                                </select>
+                                <button type="submit" style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.2s;">Оцінити</button>
+                            </form>
+                        </div>
+                    </div>
+                    <a href="{% url 'add_to_cart' dish.id %}" style="display: block; text-align: center; padding: 18px 40px; background: #27ae60; color: white; text-decoration: none; border-radius: 8px; font-size: 20px; font-weight: bold; box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3);">🛒 ДОДАТИ В КОШИК</a>
                 </div>
             </div>
 
-        <!-- ПРО НАС ТА КОНТАКТИ -->
+        <!-- КРАСИВИЙ КОШИК -->
+        {% elif is_cart %}
+            <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-top: 20px;">
+                {% if cart_items %}
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #eee; text-align: left; color: #7f8c8d;">
+                                <th style="padding: 15px 10px;">Товар</th>
+                                <th style="padding: 15px 10px;">Ціна</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                                <tr style="border-bottom: 1px solid #eee;">
+                                    <td style="padding: 15px 10px; display: flex; align-items: center; gap: 20px;">
+                                        {% if item.image %}
+                                            <img src="{{ item.image.url }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                                        {% else %}
+                                            <div style="width: 60px; height: 60px; background: #eaeaea; border-radius: 8px;"></div>
+                                        {% endif %}
+                                        <span style="font-size: 18px; font-weight: bold; color: #2c3e50;">{{ item.name }}</span>
+                                    </td>
+                                    <td style="padding: 15px 10px; font-size: 20px; font-weight: bold; color: #27ae60;">{{ item.price }} ₴</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 25px; border-radius: 10px;">
+                        <form method="POST" action="{% url 'cart' %}" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" name="clear" style="background: transparent; color: #e74c3c; border: 2px solid #e74c3c; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">🗑️ Очистити кошик</button>
+                        </form>
+                        <div style="text-align: right;">
+                            <span style="font-size: 18px; color: #7f8c8d;">До сплати:</span>
+                            <h2 style="margin: 5px 0 0 0; color: #ff6600; font-size: 36px; font-weight: 900;">{{ total }} ₴</h2>
+                        </div>
+                    </div>
+                    <div style="text-align: right; margin-top: 20px;">
+                        <button style="padding: 15px 40px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 20px; cursor: pointer; box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3);">ОФОРМИТИ ЗАМОВЛЕННЯ ➔</button>
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 60px 0;">
+                        <span style="font-size: 60px;">🛒</span>
+                        <h2 style="color: #2c3e50; margin-top: 20px;">Ваш кошик порожній</h2>
+                        <p style="color: #7f8c8d; font-size: 18px; margin-bottom: 30px;">Час обрати щось смачненьке з нашого меню!</p>
+                        <a href="{% url 'home' %}" style="padding: 12px 30px; background: #ff6600; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 18px;">Перейти до меню</a>
+                    </div>
+                {% endif %}
+            </div>
+
         {% else %}
-            <p style="font-size: 18px; color: #444; line-height: 1.6;">{{ content|linebreaksbr }}</p>
+            <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-top: 20px;">
+                <p style="font-size: 18px; color: #444; line-height: 1.8;">{{ content|linebreaksbr }}</p>
+            </div>
         {% endif %}
     </main>
 
-    <footer style="background-color: #222; color: #ccc; text-align: center; padding: 20px; margin-top: auto;">
-        <p style="margin: 0; font-size: 16px;">&copy; 2026 Доставка від Паші. Всі права захищені.</p>
+    <!-- ФУТЕР ІЗ ФОРМОЮ РОЗСИЛКИ -->
+    <footer style="background-color: #2c3e50; color: #ecf0f1; text-align: center; padding: 40px 20px; margin-top: auto;">
+        <div style="max-width: 600px; margin: 0 auto 30px auto; background: rgba(255,255,255,0.05); padding: 25px; border-radius: 12px;">
+            <h3 style="margin-top: 0; color: #f1c40f;">📩 Отримуйте секретні промокоди!</h3>
+            <p style="color: #bdc3c7; font-size: 14px; margin-bottom: 20px;">Підпишіться на нашу розсилку, і ми не будемо спамити. Лише знижки та новинки.</p>
+            <form method="POST" action="{% url 'subscribe' %}" style="display: flex; gap: 10px;">
+                {% csrf_token %}
+                <input type="email" name="email" placeholder="Введіть ваш Email..." required style="flex: 1; padding: 12px 15px; border-radius: 8px; border: none; font-size: 16px; outline: none;">
+                <button type="submit" style="background: #ff6600; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.2s;">Підписатися</button>
+            </form>
+        </div>
+        <p style="margin: 0; font-size: 14px; color: #95a5a6;">&copy; 2026 Доставка від Паші. Всі права захищені.</p>
     </footer>
 
 </body>
