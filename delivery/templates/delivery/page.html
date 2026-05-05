@@ -6,11 +6,9 @@
 </head>
 <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; background-color: #f9f9f9;">
 
-    <!-- ХЕДЕР -->
     <header style="background-color: #ff6600; padding: 15px 30px; color: white;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2 style="margin: 0;">🍕 Доставка від Паші</h2>
-
             <nav>
                 <a href="{% url 'home' %}" style="color: white; margin-right: 15px; text-decoration: none; font-weight: bold;">Головна</a>
                 <a href="{% url 'about' %}" style="color: white; margin-right: 15px; text-decoration: none; font-weight: bold;">Про нас</a>
@@ -21,41 +19,75 @@
         <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px;">
             <span style="font-size: 14px;">Наше меню:</span>
             {% for cat in categories %}
-                <span style="margin-left: 10px; background: white; color: #ff6600; padding: 4px 10px; border-radius: 15px; font-size: 14px; font-weight: bold;">
+                <!-- КАТЕГОРІЇ ТЕПЕР КЛІКАБЕЛЬНІ -->
+                <a href="{% url 'category' cat.id %}" style="margin-left: 10px; background: white; color: #ff6600; padding: 4px 10px; border-radius: 15px; font-size: 14px; font-weight: bold; text-decoration: none;">
                     {{ cat.name }}
-                </span>
-            {% empty %}
-                <span style="margin-left: 10px; font-size: 14px;">(Категорії ще не додані в адмінці)</span>
+                </a>
             {% endfor %}
         </div>
     </header>
 
-    <!-- ГОЛОВНА ЧАСТИНА -->
     <main style="flex: 1; padding: 30px;">
         <h1 style="color: #333;">{{ title }}</h1>
 
-        {% if is_home %}
-            <!-- ОНОВЛЕНИЙ ТЕКСТ ТУТ -->
-            <p style="color: #666; font-size: 18px;">Ознайомтеся з нашим свіжим меню та обирайте найсмачніші страви:</p>
+        <!-- ЯКЩО ГОЛОВНА СТОРІНКА АБО СТОРІНКА КАТЕГОРІЇ -->
+        {% if is_home or is_category %}
+            <p style="color: #666; font-size: 18px;">
+                {% if is_category %}
+                    Страви в категорії: {{ current_category.name }}
+                {% else %}
+                    Ознайомтеся з нашим свіжим меню та обирайте найсмачніші страви:
+                {% endif %}
+            </p>
 
             <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px;">
                 {% for dish in dishes %}
-                    <div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 10px; width: 220px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                        <h3 style="margin-top: 0; color: #333;">{{ dish.name }}</h3>
+                    <div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 10px; width: 220px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+
+                        <!-- ВИВІД ФОТО -->
+                        {% if dish.image %}
+                            <img src="{{ dish.image.url }}" alt="{{ dish.name }}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px;">
+                        {% else %}
+                            <div style="width: 100%; height: 160px; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999;">Немає фото</div>
+                        {% endif %}
+
+                        <h3 style="margin-top: 15px; color: #333;"><a href="{% url 'dish' dish.id %}" style="text-decoration: none; color: #ff6600;">{{ dish.name }}</a></h3>
                         <p style="color: #888; font-size: 14px; margin-bottom: 5px;">Категорія: {{ dish.category.name }}</p>
                         <p style="color: #28a745; font-size: 22px; font-weight: bold; margin: 10px 0 0 0;">{{ dish.price }} ₴</p>
+
+                        <!-- КНОПКА КУПИТИ -->
+                        <button disabled style="margin-top: auto; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: not-allowed; opacity: 0.7;">Купити</button>
                     </div>
                 {% empty %}
-                    <p style="color: red;">Поки що страв немає. Додайте їх через адмін-панель!</p>
+                    <p style="color: red;">Поки що страв немає.</p>
                 {% endfor %}
             </div>
 
+        <!-- ЯКЩО СТОРІНКА ОДНОГО ТОВАРУ -->
+        {% elif is_dish %}
+            <div style="display: flex; gap: 40px; margin-top: 20px; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                <div style="width: 400px;">
+                    {% if dish.image %}
+                        <img src="{{ dish.image.url }}" alt="{{ dish.name }}" style="width: 100%; border-radius: 10px;">
+                    {% else %}
+                        <div style="width: 100%; height: 300px; background: #eee; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #999;">Немає фото</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <h2 style="margin-top: 0; font-size: 32px;">{{ dish.name }}</h2>
+                    <p style="color: #888; font-size: 18px;">Категорія: <a href="{% url 'category' dish.category.id %}" style="color: #ff6600; text-decoration: none; font-weight: bold;">{{ dish.category.name }}</a></p>
+                    <p style="color: #28a745; font-size: 36px; font-weight: bold; margin: 20px 0;">{{ dish.price }} ₴</p>
+
+                    <button disabled style="padding: 15px 40px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: not-allowed; opacity: 0.7;">🛒 Додати в кошик (Купити)</button>
+                </div>
+            </div>
+
+        <!-- ПРО НАС ТА КОНТАКТИ -->
         {% else %}
             <p style="font-size: 18px; color: #444; line-height: 1.6;">{{ content|linebreaksbr }}</p>
         {% endif %}
     </main>
 
-    <!-- ФУТЕР БЕЗ ЗГАДОК ПРО ЛАБУ -->
     <footer style="background-color: #222; color: #ccc; text-align: center; padding: 20px; margin-top: auto;">
         <p style="margin: 0; font-size: 16px;">&copy; 2026 Доставка від Паші. Всі права захищені.</p>
     </footer>
