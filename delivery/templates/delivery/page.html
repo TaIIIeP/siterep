@@ -1,167 +1,92 @@
+{% extends 'delivery/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>{{ title }}</title>
-    <!-- ПІДКЛЮЧАЄМО НАШ CSS ФАЙЛ ЗІ СТАТИКИ -->
-    <link rel="stylesheet" href="{% static 'delivery/style.css' %}">
-</head>
-<body>
 
-    <header class="site-header">
-        <div class="header-top">
-            <h2>🍕 Доставка від Паші</h2>
-            <nav class="main-nav">
-                <a href="{% url 'home' %}" class="nav-link">Головна</a>
-                <a href="{% url 'about' %}" class="nav-link">Про нас</a>
-                <a href="{% url 'cart' %}" class="cart-link">🛒 Кошик ({{ cart_count }})</a>
-            </nav>
-        </div>
-        <div class="menu-cats">
-            <span>Меню:</span>
-            {% for cat in categories %}
-                <a href="{% url 'category' cat.id %}" class="cat-badge">{{ cat.name }}</a>
+{% block content %}
+<div class="container" style="padding: 20px;">
+
+    <!-- ГОЛОВНА СТОРІНКА АБО КАТЕГОРІЯ -->
+    {% if is_home or is_category %}
+        <h2 class="page-title">{{ title }}</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+            {% for dish in dishes %}
+                <div style="background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; padding-bottom: 15px;">
+                    {% if dish.image %}
+                        <img src="{{ dish.image.url }}" style="width: 100%; height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <h3 style="margin: 15px 0 5px;">{{ dish.name }}</h3>
+                    <p style="color: #27ae60; font-weight: bold; font-size: 1.2em;">{{ dish.price }} ₴</p>
+                    <a href="{% url 'add_to_cart' dish.id %}" style="display: inline-block; background: #e67e22; color: white; text-decoration: none; padding: 10px 25px; border-radius: 25px; font-weight: bold;">У кошик 🛒</a>
+                </div>
             {% endfor %}
         </div>
-    </header>
 
-    <main class="main-content">
-        <h1 class="page-title">{{ title }}</h1>
-
-        <!-- КАТАЛОГ СТРАВ -->
-        {% if is_home or is_category %}
-            <div class="dish-grid">
-                {% for dish in dishes %}
-                    <div class="dish-card">
-                        {% if dish.image %}
-                            <img src="{{ dish.image.url }}" class="dish-img">
-                        {% else %}
-                            <div class="dish-no-img">Немає фото</div>
-                        {% endif %}
-                        <div class="dish-info">
-                            <h3 class="dish-title"><a href="{% url 'dish' dish.id %}">{{ dish.name }}</a></h3>
-                            <div class="dish-meta">
-                                <span class="dish-rating">⭐ {{ dish.average_rating }} / 5</span>
-                                <span class="dish-price">{{ dish.price }} ₴</span>
-                            </div>
-                            <a href="{% url 'add_to_cart' dish.id %}" class="btn-buy">🛒 Додати в кошик</a>
-                        </div>
-                    </div>
-                {% empty %}
-                    <p class="empty-msg">Поки що тут немає страв.</p>
-                {% endfor %}
+    <!-- ДЕТАЛІ СТРАВИ -->
+    {% elif is_dish %}
+        <div style="max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 15px; display: flex; gap: 30px; align-items: center;">
+            {% if dish.image %}
+                <img src="{{ dish.image.url }}" style="width: 300px; border-radius: 10px;">
+            {% endif %}
+            <div>
+                <h1>{{ dish.name }}</h1>
+                <p style="font-size: 1.5em; color: #27ae60; font-weight: bold;">{{ dish.price }} ₴</p>
+                <a href="{% url 'add_to_cart' dish.id %}" style="display: inline-block; background: #e67e22; color: white; text-decoration: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; margin-top: 20px;">Додати в кошик</a>
             </div>
-
-        <!-- СТОРІНКА ОДНОГО ТОВАРУ -->
-        {% elif is_dish %}
-            <div class="dish-detail-container">
-                <div class="dish-detail-img-box">
-                    {% if dish.image %}
-                        <img src="{{ dish.image.url }}" class="dish-detail-img">
-                    {% else %}
-                        <div class="dish-detail-no-img">Немає фото</div>
-                    {% endif %}
-                </div>
-                <div class="dish-detail-info">
-                    <div>
-                        <h2 class="detail-title">{{ dish.name }}</h2>
-                        <p class="detail-category">Категорія: <strong>{{ dish.category.name }}</strong></p>
-                        <p class="detail-price">{{ dish.price }} ₴</p>
-
-                        <div class="rating-box">
-                            <h3 class="rating-title">Рейтинг: <span>⭐ {{ dish.average_rating }}</span> <small>/ 5</small></h3>
-                            <form method="POST" action="{% url 'dish' dish.id %}" class="rating-form">
-                                {% csrf_token %}
-                                <label>Ваша оцінка:</label>
-                                <select name="score">
-                                    <option value="5">⭐⭐⭐⭐⭐ (5) Відмінно</option>
-                                    <option value="4">⭐⭐⭐⭐ (4) Добре</option>
-                                    <option value="3">⭐⭐⭐ (3) Нормально</option>
-                                    <option value="2">⭐⭐ (2) Так собі</option>
-                                    <option value="1">⭐ (1) Погано</option>
-                                </select>
-                                <button type="submit" class="btn-rate">Оцінити</button>
-                            </form>
-                        </div>
-                    </div>
-                    <a href="{% url 'add_to_cart' dish.id %}" class="btn-add-cart-big">🛒 ДОДАТИ В КОШИК</a>
-                </div>
-            </div>
-
-        <!-- КОШИК -->
-        {% elif is_cart %}
-            <div class="cart-container">
-                {% if cart_items %}
-                    <table class="cart-table">
-                        <thead>
-                            <tr>
-                                <th>Товар</th>
-                                <th>Ціна</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in cart_items %}
-                                <tr>
-                                    <td>
-                                        <div class="cart-item-info">
-                                            {% if item.image %}
-                                                <img src="{{ item.image.url }}" class="cart-item-img">
-                                            {% else %}
-                                                <div class="cart-item-no-img"></div>
-                                            {% endif %}
-                                            <span>{{ item.name }}</span>
-                                        </div>
-                                    </td>
-                                    <td>{{ item.price }} ₴</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-
-                    <div class="cart-summary">
-                        <form method="POST" action="{% url 'cart' %}">
-                            {% csrf_token %}
-                            <button type="submit" name="clear" class="btn-clear">🗑️ Очистити кошик</button>
-                        </form>
-                        <div class="total-block">
-                            <span>До сплати:</span>
-                            <h2>{{ total }} ₴</h2>
-                        </div>
-                    </div>
-                    <div class="cart-actions">
-                        <button class="btn-order">ОФОРМИТИ ЗАМОВЛЕННЯ ➔</button>
-                    </div>
-                {% else %}
-                    <div class="empty-cart">
-                        <span>🛒</span>
-                        <h2>Ваш кошик порожній</h2>
-                        <p>Час обрати щось смачненьке з нашого меню!</p>
-                        <a href="{% url 'home' %}" class="empty-btn">Перейти до меню</a>
-                    </div>
-                {% endif %}
-            </div>
-
-        <!-- ТЕКСТОВІ СТОРІНКИ -->
-        {% else %}
-            <div class="cart-container">
-                <p class="text-content">{{ content|linebreaksbr }}</p>
-            </div>
-        {% endif %}
-    </main>
-
-    <footer class="site-footer">
-        <div class="subscribe-box">
-            <h3>📩 Отримуйте секретні промокоди!</h3>
-            <p>Підпишіться на нашу розсилку, і ми не будемо спамити. Лише знижки та новинки.</p>
-            <form method="POST" action="{% url 'subscribe' %}" class="subscribe-form">
-                {% csrf_token %}
-                <input type="email" name="email" placeholder="Введіть ваш Email..." required class="subscribe-input">
-                <button type="submit" class="btn-subscribe">Підписатися</button>
-            </form>
         </div>
-        <p class="footer-copy">&copy; 2026 Доставка від Паші. Всі права захищені.</p>
-    </footer>
 
-</body>
-</html>
+    <!-- КОШИК -->
+    {% elif is_cart %}
+        <div class="cart-container" style="max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <h2 class="page-title">Ваш кошик</h2>
+            {% if cart_items %}
+                <div class="cart-items">
+                    {% for item in cart_items %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 15px 0;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                {% if item.dish.image %}
+                                    <img src="{{ item.dish.image.url }}" style="width: 60px; height: 60px; border-radius: 10px; object-fit: cover;">
+                                {% endif %}
+                                <span style="font-weight: bold;">{{ item.dish.name }}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="display: flex; align-items: center; background: #f1f1f1; border-radius: 20px; padding: 5px 15px; gap: 15px;">
+                                    <a href="{% url 'remove_from_cart' item.dish.id %}" style="text-decoration: none; color: #e74c3c; font-weight: bold; font-size: 1.2em;">−</a>
+                                    <span style="font-weight: bold;">{{ item.quantity }}</span>
+                                    <a href="{% url 'add_to_cart' item.dish.id %}" style="text-decoration: none; color: #27ae60; font-weight: bold; font-size: 1.2em;">+</a>
+                                </div>
+                                <span style="font-weight: bold; min-width: 80px; text-align: right;">{{ item.item_total }} ₴</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <form method="POST" style="margin-top: 30px; background: #f9f9f9; padding: 20px; border-radius: 10px;">
+                    {% csrf_token %}
+                    <h3 style="margin-top: 0;">Деталі доставки</h3>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold;">Адреса доставки:</label>
+                        <input type="text" name="address" required placeholder="Вулиця, будинок, квартира"
+                               style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="margin: 0; color: #d35400;">Разом: {{ total }} ₴</h2>
+                        <button type="submit" name="checkout" style="background: #27ae60; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer;">ОФОРМИТИ ➔</button>
+                    </div>
+                </form>
+            {% else %}
+                <div style="text-align: center; padding: 50px;">
+                    <h2>Кошик порожній</h2>
+                    <a href="{% url 'home' %}" style="display: inline-block; background: #e67e22; color: white; text-decoration: none; padding: 10px 25px; border-radius: 8px; margin-top: 20px;">До меню</a>
+                </div>
+            {% endif %}
+        </div>
+
+    <!-- СТОРІНКИ ПРО НАС ТА КОНТАКТИ -->
+    {% else %}
+        <div style="max-width: 800px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 15px; text-align: center;">
+            <h1>{{ title }}</h1>
+            <p style="font-size: 1.2em; line-height: 1.6; color: #555;">{{ content }}</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

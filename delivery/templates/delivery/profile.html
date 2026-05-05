@@ -1,0 +1,33 @@
+{% extends 'delivery/base.html' %}
+{% block content %}
+<div class="cart-container">
+    <h2 class="page-title">👤 Вітаємо, {{ user.first_name|default:user.username }}!</h2>
+
+    <div style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 30px;">
+        <h3>Налаштування профілю</h3>
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <p>{{ profile_form.first_name.label }}:<br>{{ profile_form.first_name }}</p>
+                <p>{{ profile_form.last_name.label }}:<br>{{ profile_form.last_name }}</p>
+            </div>
+            <p>{{ profile_form.email.label }}:<br>{{ profile_form.email }}</p>
+            <button type="submit" class="btn-order" style="background: #3498db; width: auto; padding: 10px 25px;">Оновити дані</button>
+        </form>
+    </div>
+
+    <h3>📦 Історія замовлень:</h3>
+    {% for order in orders %}
+        <div style="background: #f8f9fa; padding: 15px; margin-bottom: 10px; border-left: 5px solid #27ae60;">
+            <strong>Замовлення #{{ order.id }}</strong> — {{ order.total_price }} ₴<br>
+            <small>{{ order.items_text }}</small>
+        </div>
+    {% empty %}
+        <p>У вас ще немає замовлень.</p>
+    {% endfor %}
+</div>
+
+<style>
+    input[type="text"], input[type="email"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-top: 5px; }
+</style>
+{% endblock %}
