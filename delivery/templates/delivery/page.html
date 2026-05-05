@@ -4,23 +4,61 @@
     <meta charset="UTF-8">
     <title>{{ title }}</title>
 </head>
-<body style="font-family: Arial, sans-serif; padding: 20px;">
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; background-color: #f9f9f9;">
 
-    <h1>{{ title }}</h1>
-    <p>{{ content }}</p>
-    <hr>
+    <!-- ХЕДЕР -->
+    <header style="background-color: #ff6600; padding: 15px 30px; color: white;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0;">🍕 Доставка від Паші</h2>
 
-    <nav style="margin-top: 20px;">
+            <nav>
+                <a href="{% url 'home' %}" style="color: white; margin-right: 15px; text-decoration: none; font-weight: bold;">Головна</a>
+                <a href="{% url 'about' %}" style="color: white; margin-right: 15px; text-decoration: none; font-weight: bold;">Про нас</a>
+                <a href="{% url 'contacts' %}" style="color: white; text-decoration: none; font-weight: bold;">Контакти</a>
+            </nav>
+        </div>
+
+        <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px;">
+            <span style="font-size: 14px;">Наше меню:</span>
+            {% for cat in categories %}
+                <span style="margin-left: 10px; background: white; color: #ff6600; padding: 4px 10px; border-radius: 15px; font-size: 14px; font-weight: bold;">
+                    {{ cat.name }}
+                </span>
+            {% empty %}
+                <span style="margin-left: 10px; font-size: 14px;">(Категорії ще не додані в адмінці)</span>
+            {% endfor %}
+        </div>
+    </header>
+
+    <!-- ГОЛОВНА ЧАСТИНА -->
+    <main style="flex: 1; padding: 30px;">
+        <h1 style="color: #333;">{{ title }}</h1>
+
         {% if is_home %}
-            <h3>Меню сайту:</h3>
-            <ul>
-                <li><a href="{% url 'about' %}">Дізнатися про нас</a></li>
-                <li><a href="{% url 'contacts' %}">Наші контакти</a></li>
-            </ul>
+            <!-- ОНОВЛЕНИЙ ТЕКСТ ТУТ -->
+            <p style="color: #666; font-size: 18px;">Ознайомтеся з нашим свіжим меню та обирайте найсмачніші страви:</p>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px;">
+                {% for dish in dishes %}
+                    <div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 10px; width: 220px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        <h3 style="margin-top: 0; color: #333;">{{ dish.name }}</h3>
+                        <p style="color: #888; font-size: 14px; margin-bottom: 5px;">Категорія: {{ dish.category.name }}</p>
+                        <p style="color: #28a745; font-size: 22px; font-weight: bold; margin: 10px 0 0 0;">{{ dish.price }} ₴</p>
+                    </div>
+                {% empty %}
+                    <p style="color: red;">Поки що страв немає. Додайте їх через адмін-панель!</p>
+                {% endfor %}
+            </div>
+
         {% else %}
-            <a href="{% url 'home' %}">⬅ Повернутися на Головну сторінку</a>
+            <p style="font-size: 18px; color: #444; line-height: 1.6;">{{ content|linebreaksbr }}</p>
         {% endif %}
-    </nav>
+    </main>
+
+    <!-- ФУТЕР БЕЗ ЗГАДОК ПРО ЛАБУ -->
+    <footer style="background-color: #222; color: #ccc; text-align: center; padding: 20px; margin-top: auto;">
+        <p style="margin: 0; font-size: 16px;">&copy; 2026 Доставка від Паші. Всі права захищені.</p>
+    </footer>
 
 </body>
 </html>
